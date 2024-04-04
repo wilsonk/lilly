@@ -20,22 +20,12 @@ fn C.luaL_dostring(&C.lua_State, &char) int
 fn C.lua_pop(&C.lua_State, int)
 fn C.lua_close(&C.lua_State)
 
-pub fn execute(code string) {
-	lua_state := C.luaL_newstate()
-	status := C.luaL_dostring(lua_state, &char(code.str))
-	C.lua_getglobal(lua_state, c"global")
-	if C.lua_istable(lua_state, -1) == 1 {
-		println("global table found")
-	}
-	C.lua_close(lua_state)
-}
-
 pub fn parse[T](code string) !T {
 	mut typ := T{}
 	lua_state := C.luaL_newstate()
 	defer { C.lua_close(lua_state) }
 	status := C.luaL_dostring(lua_state, &char(code.str))
-	C.lua_getglobal(lua_state, c"global")
+	C.lua_getglobal(lua_state, c"config")
 	if C.lua_istable(lua_state, -1) == 1 {
 		$if T is $struct {
 			$for field in T.fields {
@@ -45,7 +35,7 @@ pub fn parse[T](code string) !T {
 					typ.$(field.name) = C.lua_tointeger(lua_state, -1)
 					C.lua_pop(lua_state, 1)
 				} $else $if field.typ is string {
-					typ.$(field.name) = unsafe { C.lua_tostring(lua_state, -1).vstring() }
+					typ.$(field.name) = cstring_to_vstring(C.lua_tostring(lua_state, -1))
 					C.lua_pop(lua_state, 1)
 				}
 			}

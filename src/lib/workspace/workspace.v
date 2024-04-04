@@ -83,10 +83,10 @@ pub fn (workspace Workspace) files() []string {
 pub fn (workspace Workspace) syntaxes() []Syntax { return workspace.syntaxes }
 
 fn resolve_config(mut _log Logger, config_dir fn () !string, read_file fn (path string) !string) Config {
-	loaded_config := attempt_to_load_from_disk(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
-	loaded_config2 := attempt_to_load_from_disk_using_luajit(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
+	// loaded_config := attempt_to_load_from_disk(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
+	loaded_config := attempt_to_load_from_disk_using_luajit(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
 	// loaded_config := attempt_to_load_from_disk(config_dir, read_file) or { fallback_to_bundled_default_config() }
-	return loaded_config2
+	return loaded_config
 }
 
 // NOTE(tauraamui):
