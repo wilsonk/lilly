@@ -3,6 +3,7 @@ module workspace
 import os
 import json
 import term.ui as tui
+import lib.luajit
 
 const builtin_lilly_config_file_content = $embed_file("../../config/lilly.conf").to_string()
 const lilly_config_root_dir_name = "lilly"
@@ -83,8 +84,9 @@ pub fn (workspace Workspace) syntaxes() []Syntax { return workspace.syntaxes }
 
 fn resolve_config(mut _log Logger, config_dir fn () !string, read_file fn (path string) !string) Config {
 	loaded_config := attempt_to_load_from_disk(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
+	loaded_config2 := attempt_to_load_from_disk_using_luajit(config_dir, read_file) or { _log.error("failed to resolve config: ${err}"); return fallback_to_bundled_default_config() }
 	// loaded_config := attempt_to_load_from_disk(config_dir, read_file) or { fallback_to_bundled_default_config() }
-	return loaded_config
+	return loaded_config2
 }
 
 // NOTE(tauraamui):
@@ -100,4 +102,11 @@ fn attempt_to_load_from_disk(config_dir fn () !string, read_file fn (path string
 	config_file_full_path := os.join_path(config_root_dir, lilly_config_root_dir_name, "lilly.conf")
 	config_file_contents := read_file(config_file_full_path) or { return error("local config file ${config_file_full_path} not found: ${err}") }
 	return json.decode(Config, config_file_contents) or { return error("unable to parse config ${config_file_full_path}: ${err}") }
+}
+
+fn attempt_to_load_from_disk_using_luajit(config_dir fn () !string, read_file fn (path string) !string) !Config {
+	config_root_dir := config_dir() or { return error("unable to resolve local config root directory") }
+	config_file_full_path := os.join_path(config_root_dir, lilly_config_root_dir_name, "lilly.conf")
+	config_file_contents := read_file(config_file_full_path) or { return error("local config file ${config_file_full_path} not found: ${err}") }
+	return luajit.parse[Config](config_file_contents) or { return error("unable to parse config ${config_file_full_path}: ${err}") }
 }

@@ -18,6 +18,7 @@ import os
 import log
 import lib.clipboard
 import lib.draw
+import lib.luajit
 import os.cmdline
 
 struct App {
