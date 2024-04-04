@@ -28,18 +28,24 @@ pub fn parse[T](code string) !T {
 	status := C.luaL_dostring(lua_state, &char(code.str))
 	C.lua_getglobal(lua_state, c"config")
 	if C.lua_istable(lua_state, -1) == 1 {
-		$if T is $struct {
-			$for field in T.fields {
-				C.lua_pushstring(lua_state, &char(field.name.str))
-				if C.lua_isnoneornil(lua_state, -2) == 0 {
-					C.lua_gettable(lua_state, -2)
-					$if field.typ is int {
-						typ.$(field.name) = C.lua_tointeger(lua_state, -1)
-						C.lua_pop(lua_state, 1)
-					} $else $if field.typ is string {
-						typ.$(field.name) = unsafe { cstring_to_vstring(C.lua_tostring(lua_state, -1)) }
-						C.lua_pop(lua_state, 1)
-					}
+		return decode_state_into_type[T](T{}, lua_state)
+	}
+	return typ
+}
+
+fn decode_state_into_type[T](_ T, lua_state &C.lua_State) !T {
+	mut typ := T{}
+	$if T is $struct {
+		$for field in T.fields {
+			C.lua_pushstring(lua_state, &char(field.name.str))
+			if C.lua_isnoneornil(lua_state, -2) == 0 {
+				C.lua_gettable(lua_state, -2)
+				$if field.typ is int {
+					typ.$(field.name) = C.lua_tointeger(lua_state, -1)
+					C.lua_pop(lua_state, 1)
+				} $else $if field.typ is string {
+					typ.$(field.name) = unsafe { cstring_to_vstring(C.lua_tostring(lua_state, -1)) }
+					C.lua_pop(lua_state, 1)
 				}
 			}
 		}
