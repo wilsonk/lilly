@@ -12,7 +12,8 @@ pub struct C.lua_State {}
 fn C.luaL_newstate() &C.lua_State
 fn C.lua_getglobal(&C.lua_State, &char)
 fn C.lua_istable(&C.lua_State, int) int
-fn C.lua_gettable(&C.lua_State, int) int
+fn C.lua_gettable(&C.lua_State, int)
+fn C.lua_isnoneornil(&C.lua_State, int) int
 fn C.lua_pushstring(&C.lua_State, &char)
 fn C.lua_tointeger(&C.lua_State, int) int
 fn C.lua_tostring(&C.lua_State, int) &char
@@ -30,13 +31,15 @@ pub fn parse[T](code string) !T {
 		$if T is $struct {
 			$for field in T.fields {
 				C.lua_pushstring(lua_state, &char(field.name.str))
-				C.lua_gettable(lua_state, -2)
-				$if field.typ is int {
-					typ.$(field.name) = C.lua_tointeger(lua_state, -1)
-					C.lua_pop(lua_state, 1)
-				} $else $if field.typ is string {
-					typ.$(field.name) = cstring_to_vstring(C.lua_tostring(lua_state, -1))
-					C.lua_pop(lua_state, 1)
+				if C.lua_isnoneornil(lua_state, -2) == 0 {
+					C.lua_gettable(lua_state, -2)
+					$if field.typ is int {
+						typ.$(field.name) = C.lua_tointeger(lua_state, -1)
+						C.lua_pop(lua_state, 1)
+					} $else $if field.typ is string {
+						typ.$(field.name) = unsafe { cstring_to_vstring(C.lua_tostring(lua_state, -1)) }
+						C.lua_pop(lua_state, 1)
+					}
 				}
 			}
 		}
