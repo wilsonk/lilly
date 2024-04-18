@@ -14,7 +14,7 @@ const c_gapsize = 50
 pub fn new_gap_buffer(size int) &GapBuffer {
 	mut len := size - c_gapsize
 	if len < c_gapsize { len = c_gapsize }
-	return &GapBuffer{ buffer: []rune{ len: len } }
+	return &GapBuffer{ buffer: []rune{ len: len, cap: len } }
 }
 
 pub fn (mut gap_buffer GapBuffer) set_string(s string) {
@@ -79,9 +79,9 @@ fn (mut gap_buffer GapBuffer) post_gap_start() int {
 }
 
 fn (mut gap_buffer GapBuffer) grow_gap() {
-	mut new_buffer := []rune{ cap: gap_buffer.buffer.len * 2 }
+	mut new_buffer := []rune{ len: gap_buffer.buffer.len * 2, cap: gap_buffer.buffer.len * 2 }
 	arrays.copy(mut &new_buffer, gap_buffer.buffer[..gap_buffer.pre_gap_len])
-	new_buffer.insert(gap_buffer.post_gap_start() + gap_buffer.buffer.len, gap_buffer.buffer[gap_buffer.post_gap_start()..])
+	new_buffer.insert(gap_buffer.post_gap_start(), gap_buffer.buffer[gap_buffer.post_gap_start()..])
 	gap_buffer.buffer = new_buffer
 }
 
