@@ -1,71 +1,81 @@
 module buffer
 
+import arrays
+
 pub struct GapBuffer {
 mut:
-	data      []rune
-	gap_size  int
-	gap_left  int
-	gap_right int
-	size      int
+	buffer       []rune
+	pre_gap_len  int
+	post_gap_len int
 }
+
+const c_gapsize = 50
 
 pub fn new_gap_buffer() &GapBuffer {
-	return &GapBuffer{ data: []rune{ len: 50 } }
+	return &GapBuffer{ buffer: []rune{ len: c_gapsize } }
 }
 
-fn (mut gap_buffer GapBuffer) grow(size int, position int) {
-	mut a := []rune{ len: size }
-	for i := position; i < size; i++ {
-		a[i - position] = gap_buffer.data[i]
-	}
-
-	for i := 0; i < size; i++ {
-		gap_buffer.data[i + position] = "_".runes()[0]
-	}
-
-	for i := 0; i < position + size; i++ {
-		gap_buffer.data[position + size + i] = a[i]
-	}
-
-	gap_buffer.size += size
-	gap_buffer.gap_right += size
+pub fn (mut gap_buffer GapBuffer) set_string(s string) {
+	gap_buffer.buffer = s.runes()
+	gap_buffer.pre_gap_len = 0
+	gap_buffer.post_gap_len = gap_buffer.buffer.len
 }
 
-fn (mut gap_buffer GapBuffer) left(position int) {
-	for position < gap_buffer.gap_left {
-		gap_buffer.gap_left -= 1
-		gap_buffer.gap_right -= 1
-		gap_buffer.data[gap_buffer.gap_right + 1] = gap_buffer.data[gap_buffer.gap_left]
-		gap_buffer.data[gap_buffer.gap_left] = "_".runes()[0]
-	}
+pub fn (mut gap_buffer GapBuffer) get_string() string {
+	mut text := []rune{}
+	text << gap_buffer.buffer[..gap_buffer.pre_gap_len]
+	text << gap_buffer.buffer[gap_buffer.post_gap_start()..]
+	return text.string()
 }
 
-fn (mut gap_buffer GapBuffer) right(position int) {
-	for position > gap_buffer.gap_right {
-		gap_buffer.gap_left += 1
-		gap_buffer.gap_right += 1
-		gap_buffer.data[gap_buffer.gap_left - 1] = gap_buffer.data[gap_buffer.gap_right]
-		gap_buffer.data[gap_buffer.gap_right] = "_".runes()[0]
-	}
+pub fn (mut gap_buffer GapBuffer) move_cursor_left() {
+	if gap_buffer.pre_gap_len == 0 { return }
+	gap_buffer.buffer[gap_buffer.post_gap_start() - 1] = gap_buffer.buffer[gap_buffer.pre_gap_len - 1]
+	gap_buffer.pre_gap_len -= 1
+	gap_buffer.post_gap_len += 1
 }
 
-pub fn (mut gap_buffer GapBuffer) move_cursor(position int) {
-	if position < gap_buffer.gap_left { gap_buffer.left(position); return }
-	gap_buffer.right(position)
+pub fn (mut gap_buffer GapBuffer) move_cursor_right() {
+	if gap_buffer.post_gap_len == 0 { return }
+	gap_buffer.buffer[gap_buffer.pre_gap_len] = gap_buffer.buffer[gap_buffer.post_gap_start()]
+	gap_buffer.pre_gap_len += 1
+	gap_buffer.post_gap_len -= 1
 }
 
-pub fn (mut gap_buffer GapBuffer) insert(s string, position int) {
-	if position != gap_buffer.gap_left {
-		gap_buffer.move_cursor(position)
-	}
-
-	mut ppos := position
-	for r in s.runes() {
-		if gap_buffer.gap_right == gap_buffer.gap_left {
-			gap_buffer.grow(10, ppos)
-		}
-		gap_buffer.data[gap_buffer.gap_left] = r
-		gap_buffer.gap_left += 1
-		ppos += 1
-	}
+pub fn (mut gap_buffer GapBuffer) delete() {
+	if gap_buffer.post_gap_len == 0 { return }
+	gap_buffer.post_gap_len -= 1
 }
+
+pub fn (mut gap_buffer GapBuffer) backspace() {
+	if gap_buffer.pre_gap_len == 0 { return }
+	gap_buffer.pre_gap_len -= 1
+}
+
+fn (mut gap_buffer GapBuffer) gap_start() int {
+	return gap_buffer.pre_gap_len
+}
+
+fn (mut gap_buffer GapBuffer) gap_len() int {
+	return gap_buffer.post_gap_start() - gap_buffer.pre_gap_len
+}
+
+fn (mut gap_buffer GapBuffer) post_gap_start() int {
+	return gap_buffer.buffer.len - gap_buffer.post_gap_len
+}
+
+fn (mut gap_buffer GapBuffer) grow_gap() {
+	mut new_buffer := []rune{ cap: gap_buffer.buffer.len * 2 }
+	arrays.copy(mut &new_buffer, gap_buffer.buffer[..gap_buffer.pre_gap_len])
+	new_buffer.insert(gap_buffer.post_gap_start() + gap_buffer.buffer.len, gap_buffer.buffer[gap_buffer.post_gap_start()..])
+	gap_buffer.buffer = new_buffer
+}
+
+fn (mut gap_buffer GapBuffer) insert(c rune) {
+	if gap_buffer.gap_len() == 0 {
+		gap_buffer.grow_gap()
+	}
+	gap_buffer.buffer[gap_buffer.gap_start()] = c
+	gap_buffer.pre_gap_len += 1
+}
+
