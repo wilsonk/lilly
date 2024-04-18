@@ -1,13 +1,13 @@
 module buffer
 
 fn test_gap_buffer_storing_str() {
-	mut buff := new_gap_buffer()
+	mut buff := new_gap_buffer(0)
 	buff.set_string("Hello Test!")
 	assert buff.get_string() == "Hello Test!"
 }
 
 fn test_gap_buffer_inserting_sentence_per_rune() {
-	mut buff := new_gap_buffer()
+	mut buff := new_gap_buffer(0)
 	for c in "Hello Test!".runes() {
 		buff.insert(c)
 	}
@@ -15,7 +15,7 @@ fn test_gap_buffer_inserting_sentence_per_rune() {
 }
 
 fn test_gap_buffer_deleting_chars() {
-	mut buff := new_gap_buffer()
+	mut buff := new_gap_buffer(0)
 	buff.set_string("This is a test sentence.")
 	assert buff.get_string() == "This is a test sentence."
 

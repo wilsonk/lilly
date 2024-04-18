@@ -11,8 +11,10 @@ mut:
 
 const c_gapsize = 50
 
-pub fn new_gap_buffer() &GapBuffer {
-	return &GapBuffer{ buffer: []rune{ len: c_gapsize } }
+pub fn new_gap_buffer(size int) &GapBuffer {
+	mut len := size - c_gapsize
+	if len < c_gapsize { len = c_gapsize }
+	return &GapBuffer{ buffer: []rune{ len: len } }
 }
 
 pub fn (mut gap_buffer GapBuffer) set_string(s string) {
