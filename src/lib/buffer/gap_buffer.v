@@ -30,28 +30,40 @@ pub fn (mut gap_buffer GapBuffer) get_string() string {
 	return text.string()
 }
 
-pub fn (mut gap_buffer GapBuffer) move_cursor_left() {
-	if gap_buffer.pre_gap_len == 0 { return }
+pub fn (mut gap_buffer GapBuffer) move_cursor_left() bool {
+	if gap_buffer.pre_gap_len == 0 { return false }
 	gap_buffer.buffer[gap_buffer.post_gap_start() - 1] = gap_buffer.buffer[gap_buffer.pre_gap_len - 1]
 	gap_buffer.pre_gap_len -= 1
 	gap_buffer.post_gap_len += 1
+	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) move_cursor_right() {
-	if gap_buffer.post_gap_len == 0 { return }
+pub fn (mut gap_buffer GapBuffer) move_cursor_right() bool {
+	if gap_buffer.post_gap_len == 0 { return false }
 	gap_buffer.buffer[gap_buffer.pre_gap_len] = gap_buffer.buffer[gap_buffer.post_gap_start()]
 	gap_buffer.pre_gap_len += 1
 	gap_buffer.post_gap_len -= 1
+	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) delete() {
-	if gap_buffer.post_gap_len == 0 { return }
+pub fn (mut gap_buffer GapBuffer) insert(c rune) {
+	if gap_buffer.gap_len() == 0 {
+		gap_buffer.grow_gap()
+	}
+	gap_buffer.buffer[gap_buffer.gap_start()] = c
+	gap_buffer.pre_gap_len += 1
+}
+
+pub fn (mut gap_buffer GapBuffer) delete() bool {
+	if gap_buffer.post_gap_len == 0 { return false }
 	gap_buffer.post_gap_len -= 1
+	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) backspace() {
-	if gap_buffer.pre_gap_len == 0 { return }
+pub fn (mut gap_buffer GapBuffer) backspace() bool {
+	if gap_buffer.pre_gap_len == 0 { return false }
 	gap_buffer.pre_gap_len -= 1
+	return true
 }
 
 fn (mut gap_buffer GapBuffer) gap_start() int {
@@ -71,13 +83,5 @@ fn (mut gap_buffer GapBuffer) grow_gap() {
 	arrays.copy(mut &new_buffer, gap_buffer.buffer[..gap_buffer.pre_gap_len])
 	new_buffer.insert(gap_buffer.post_gap_start() + gap_buffer.buffer.len, gap_buffer.buffer[gap_buffer.post_gap_start()..])
 	gap_buffer.buffer = new_buffer
-}
-
-fn (mut gap_buffer GapBuffer) insert(c rune) {
-	if gap_buffer.gap_len() == 0 {
-		gap_buffer.grow_gap()
-	}
-	gap_buffer.buffer[gap_buffer.gap_start()] = c
-	gap_buffer.pre_gap_len += 1
 }
 

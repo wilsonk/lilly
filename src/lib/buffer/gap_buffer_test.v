@@ -19,13 +19,13 @@ fn test_gap_buffer_deleting_chars() {
 	buff.set_string("This is a test sentence.")
 	assert buff.get_string() == "This is a test sentence."
 
-	buff.delete()
+	assert buff.delete()
 	assert buff.get_string() == "his is a test sentence."
 
-	buff.backspace()
+    assert buff.backspace() == false
 	assert buff.get_string() == "his is a test sentence."
 
-	buff.move_cursor_right()
-	buff.backspace()
+	assert buff.move_cursor_right()
+	assert buff.backspace()
 	assert buff.get_string() == "is is a test sentence."
 }
