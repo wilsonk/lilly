@@ -7,7 +7,7 @@ pub struct Buffer {
 pub:
 	file_path string
 pub mut:
-	data             GapBuffer
+	buffer           GapBuffer
 	lines     	   []string
 	auto_close_chars []string
 mut:
@@ -19,6 +19,10 @@ mut:
 pub fn (mut buffer Buffer) load_from_path() ! {
 	buffer.lines = os.read_lines(buffer.file_path) or { return error("unable to open file ${buffer.file_path} ${err}") }
 	if buffer.lines.len == 0 { buffer.lines = [""] }
+	for l in buffer.lines {
+		for c in l.runes() { buffer.buffer.insert(c) }
+		buffer.buffer.insert(`\n`)
+	}
 }
 
 pub fn (mut buffer Buffer) undo() {

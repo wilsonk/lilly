@@ -85,7 +85,7 @@ fn (mut editor Editor) open_file(path string) ! {
 	}
 
 	// neither existing view nor buffer was found, oh well, just load it then :)
-	mut buff := buffer.Buffer{ file_path: path }
+	mut buff := buffer.Buffer{ file_path: path, buffer: buffer.new_gap_buffer(0) }
 	buff.load_from_path() or { return err }
 	editor.buffers << buff
 	editor.views << open_view(editor.workspace.config, editor.workspace.branch(), editor.workspace.syntaxes(), editor.clipboard, mut &editor.buffers[editor.buffers.len-1])
