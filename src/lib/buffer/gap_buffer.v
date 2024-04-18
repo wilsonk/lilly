@@ -66,6 +66,23 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 	return true
 }
 
+pub fn (mut gap_buffer GapBuffer) lines(from int, to int) []string {
+	/*
+	mut text := []rune{}
+	text << gap_buffer.buffer[..gap_buffer.pre_gap_len]
+	text << gap_buffer.buffer[gap_buffer.post_gap_start()..]
+	return text.string()
+	*/
+	return []
+}
+
+pub fn (mut gap_buffer GapBuffer) locate_newlines() []int {
+	mut found := []int{}
+	for i, r in gap_buffer.buffer[..gap_buffer.pre_gap_len] { if r == `\n` { found << i } }
+	for i, r in gap_buffer.buffer[gap_buffer.post_gap_start()..] { if r == `\n` { found << i + gap_buffer.gap_len() } }
+	return found
+}
+
 fn (mut gap_buffer GapBuffer) gap_start() int {
 	return gap_buffer.pre_gap_len
 }
