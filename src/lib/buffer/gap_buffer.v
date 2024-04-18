@@ -66,14 +66,13 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) lines(from int, to int) []string {
-	/*
-	mut text := []rune{}
-	text << gap_buffer.buffer[..gap_buffer.pre_gap_len]
-	text << gap_buffer.buffer[gap_buffer.post_gap_start()..]
-	return text.string()
-	*/
-	return []
+pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {
+	mut lines := []string{}
+
+	newline_locations := gap_buffer.locate_newlines()
+	lines << gap_buffer.buffer[..newline_locations[0]].string()
+
+	return lines
 }
 
 pub fn (mut gap_buffer GapBuffer) locate_newlines() []int {

@@ -25,6 +25,19 @@ fn test_gap_buffer_locating_newlines() {
 	assert newline_positions == [11]
 }
 
+fn test_gap_buffer_reading_lines() {
+	mut buff := new_gap_buffer(0)
+	for c in "Hello Test!\nThis is a second line.\nThis is a third line!".runes() {
+		buff.insert(c)
+	}
+	assert buff.get_string() == "Hello Test!\nThis is a second line.\nThis is a third line!"
+
+	newline_positions := buff.locate_newlines()
+	assert newline_positions == [11, 34]
+
+	// buff.get_string_lines()
+}
+
 fn test_gap_buffer_deleting_chars() {
 	mut buff := new_gap_buffer(0)
 	buff.set_string("This is a test sentence.")
