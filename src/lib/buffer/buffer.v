@@ -7,6 +7,7 @@ pub struct Buffer {
 pub:
 	file_path string
 pub mut:
+	data             GapBuffer
 	lines     	   []string
 	auto_close_chars []string
 mut:
