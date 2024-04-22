@@ -66,10 +66,14 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) get_string_line(index int) string {
+// 0 newlines = 1 line
+// 1 newline  = 2 lines
+// 2 newlines = 3 lines
+// 3 newlines = 4 lines
+pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	newline_locations := gap_buffer.locate_newlines()
-	if newline_locations.len == 0 { return gap_buffer.get_string() }
-	return gap_buffer.buffer[..newline_locations[index]].string()
+	if newline_locations.len + 1 < line_num { return error("invalid line index ${line_num} > ${newline_locations.len + 1}") }
+	return "invalid"
 }
 
 pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {
