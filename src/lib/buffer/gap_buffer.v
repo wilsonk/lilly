@@ -66,13 +66,14 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 	return true
 }
 
-// 0 newlines = 1 line
-// 1 newline  = 2 lines
-// 2 newlines = 3 lines
-// 3 newlines = 4 lines
+// 0 newlines = 1 line  // previous newline? -> NO,  next newline? -> YES
+// 1 newline  = 2 lines // previous newline? -> YES, next newline? -> YES
+// 2 newlines = 3 lines // previous newline? -> YES, next newline? -> YES
+// 3 newlines = 4 lines // previous newline? -> YES, next newline? -> NO
 pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
+	if line_num < 0 { return error("invalid line index ${line_num} < 0") }
 	newline_locations := gap_buffer.locate_newlines()
-	if newline_locations.len + 1 < line_num { return error("invalid line index ${line_num} > ${newline_locations.len + 1}") }
+	if newline_locations.len < line_num { return error("invalid line index ${line_num} > ${newline_locations.len}") }
 	return "invalid"
 }
 
