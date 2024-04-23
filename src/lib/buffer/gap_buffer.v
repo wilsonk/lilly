@@ -70,11 +70,17 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 // 1 newline  = 2 lines // previous newline? -> YES, next newline? -> YES
 // 2 newlines = 3 lines // previous newline? -> YES, next newline? -> YES
 // 3 newlines = 4 lines // previous newline? -> YES, next newline? -> NO
+// 10 newlines = 11 lines, line_num = 4 // previous newline? -> YES, next newline -> YES
+// 10 newlines = 11 lines, line_num = 0 // previous newline? -> NO, next newline -> YES
+// 10 newlines = 11 lines, line_num = 10 // previous newline? -> YES, next newline -> NO
+// 0 newlines = 1 line, line_num = 0 // previous newline? -> NO, next newline -> NO
 pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	if line_num < 0 { return error("invalid line index ${line_num} < 0") }
 	newline_locations := gap_buffer.locate_newlines()
-	if newline_locations.len < line_num { return error("invalid line index ${line_num} > ${newline_locations.len}") }
-	return "invalid"
+	if line_num >= newline_locations.len { return error("invalid line index ${line_num} >= ${newline_locations.len}") }
+
+	return ""
+	// return gap_buffer.buffer[newline_locations[line_num - 1]..newline_locations[line_num]].string()
 }
 
 pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {

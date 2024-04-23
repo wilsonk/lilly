@@ -36,7 +36,7 @@ fn test_gap_buffer_reading_lines() {
 	assert newline_positions == [11, 34]
 
 	assert buff.get_line_str(0)! == "Hello Test!"
-	assert buff.get_line_str(1)! == "This is a second line."
+	assert buff.get_line_str(1)! == "\nThis is a second line."
 	assert buff.get_line_str(2)! == "This is a third line!"
 }
 
