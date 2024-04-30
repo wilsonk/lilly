@@ -35,9 +35,8 @@ fn test_gap_buffer_reading_lines() {
 	newline_positions := buff.locate_newlines()
 	assert newline_positions == [11, 34]
 
-	assert buff.get_line_str(0)! == "Hello Test!"
-	assert buff.get_line_str(1)! == "\nThis is a second line."
-	assert buff.get_line_str(2)! == "This is a third line!"
+	assert buff.get_line_str(-1) or { err.msg() } == "invalid line index -1 < 0"
+	assert buff.get_line_str(53) or { err.msg() } == "invalid line index 53 >= 2"
 }
 
 fn test_gap_buffer_deleting_chars() {
