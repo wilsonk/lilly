@@ -59,7 +59,7 @@ fn test_gap_buffer_reading_lines_from_to() {
 	}
 	assert buff.get_string() == "Hello Test!\nThis is a second line.\nThis is a third line!"
 
-	assert buff.get_lines_str(0, 2)! == ["Hello Test!", "This is a second line.", "This is a third line!"]
+	assert buff.get_lines_str(0, 2) == ["Hello Test!", "This is a second line.", "This is a third line!"]
 }
 
 fn test_gap_buffer_deleting_chars() {

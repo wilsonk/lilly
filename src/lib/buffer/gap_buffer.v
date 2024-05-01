@@ -66,7 +66,7 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 	return true
 }
 
-pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
+fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	if line_num < 0 { return error("invalid line index ${line_num} < 0") }
 	newline_locations := gap_buffer.locate_newlines()
 	if line_num > newline_locations.len { return error("invalid line index ${line_num} > ${newline_locations.len}") }
@@ -93,27 +93,15 @@ pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	return document[newline_locations[line_num - 1] + 1..newline_locations[line_num]].string()
 }
 
-pub fn (mut gap_buffer GapBuffer) get_lines_str(from int, to int) ![]string {
-	if from >= to { return error("invalid from ${from} >= ${to}") }
+fn (mut gap_buffer GapBuffer) get_lines_str(from int, to int) []string {
 	mut lines := []string{}
 	for i := from; i <= to; i++ {
-		lines << gap_buffer.get_line_str(i) or { return err }
+		lines << gap_buffer.get_line_str(i) or { continue }
 	}
 	return lines
 }
 
-pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {
-	mut lines := []string{}
-
-	newline_locations := gap_buffer.locate_newlines()
-	// if newline_locations.len == 0 { return [gap_buffer.string()] }
-
-	lines << gap_buffer.buffer[..newline_locations[0]].string()
-
-	return lines
-}
-
-pub fn (mut gap_buffer GapBuffer) locate_newlines() []int {
+fn (mut gap_buffer GapBuffer) locate_newlines() []int {
 	mut found := []int{}
 	for i, r in gap_buffer.buffer[..gap_buffer.pre_gap_len] { if r == `\n` { found << i } }
 	for i, r in gap_buffer.buffer[gap_buffer.post_gap_start()..] { if r == `\n` { found << i + gap_buffer.gap_len() } }
