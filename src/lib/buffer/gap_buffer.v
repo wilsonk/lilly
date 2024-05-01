@@ -69,15 +69,23 @@ pub fn (mut gap_buffer GapBuffer) backspace() bool {
 pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	if line_num < 0 { return error("invalid line index ${line_num} < 0") }
 	newline_locations := gap_buffer.locate_newlines()
-	if line_num >= newline_locations.len { return error("invalid line index ${line_num} >= ${newline_locations.len}") }
+	if line_num > newline_locations.len { return error("invalid line index ${line_num} > ${newline_locations.len}") }
 
-	// if the user wants to get line 0/1
+	// FIX(tauraamui): don't really want to do this, it's probably creating a copy, look into direct access more
+	mut document := gap_buffer.buffer[..gap_buffer.pre_gap_len]
+	document << gap_buffer.buffer[gap_buffer.post_gap_start()..]
+
+	// if want to retrieve line 0/1
 	if line_num == 0 {
-		newline_locations
+		return document[..newline_locations[0]].string()
 	}
 
-	return ""
-	// return gap_buffer.buffer[newline_locations[line_num - 1]..newline_locations[line_num]].string()
+	// if want to retrieve last line
+	if line_num == newline_locations.len {
+		return document[newline_locations[line_num - 1] + 1..].string()
+	}
+
+	return document[newline_locations[line_num - 1] + 1..newline_locations[line_num]].string()
 }
 
 pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {
