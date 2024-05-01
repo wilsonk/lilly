@@ -93,6 +93,15 @@ pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	return document[newline_locations[line_num - 1] + 1..newline_locations[line_num]].string()
 }
 
+pub fn (mut gap_buffer GapBuffer) get_lines_str(from int, to int) ![]string {
+	if from >= to { return error("invalid from ${from} >= ${to}") }
+	mut lines := []string{}
+	for i := from; i <= to; i++ {
+		lines << gap_buffer.get_line_str(i) or { return err }
+	}
+	return lines
+}
+
 pub fn (mut gap_buffer GapBuffer) get_string_lines(from int, to int) []string {
 	mut lines := []string{}
 

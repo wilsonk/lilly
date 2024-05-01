@@ -52,6 +52,16 @@ fn test_gap_buffer_reading_lines() {
 	assert buff.get_line_str(2)! == "This is a third line!"
 }
 
+fn test_gap_buffer_reading_lines_from_to() {
+	mut buff := new_gap_buffer(0)
+	for c in "Hello Test!\nThis is a second line.\nThis is a third line!".runes() {
+		buff.insert(c)
+	}
+	assert buff.get_string() == "Hello Test!\nThis is a second line.\nThis is a third line!"
+
+	assert buff.get_lines_str(0, 2)! == ["Hello Test!", "This is a second line.", "This is a third line!"]
+}
+
 fn test_gap_buffer_deleting_chars() {
 	mut buff := new_gap_buffer(0)
 	buff.set_string("This is a test sentence.")
