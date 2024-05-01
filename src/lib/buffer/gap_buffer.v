@@ -106,6 +106,17 @@ pub fn (mut gap_buffer GapBuffer) locate_newlines() []int {
 	return found
 }
 
+// TODO(tauraamui) -> use this at some point
+fn (mut gap_buffer GapBuffer) locate_newlines_2() ([]int, []int) {
+	mut pre_gap_found := []int{}
+	mut post_gap_found := []int{}
+
+	for i, r in gap_buffer.buffer[..gap_buffer.pre_gap_len] { if r == `\n` { pre_gap_found << i } }
+	for i, r in gap_buffer.buffer[gap_buffer.post_gap_start()..] { if r == `\n` { post_gap_found << i + gap_buffer.gap_len() } }
+
+	return pre_gap_found, post_gap_found
+}
+
 fn (mut gap_buffer GapBuffer) gap_start() int {
 	return gap_buffer.pre_gap_len
 }
