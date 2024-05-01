@@ -7,10 +7,10 @@ pub struct Buffer {
 pub:
 	file_path string
 pub mut:
-	buffer           GapBuffer
 	lines     	   []string
 	auto_close_chars []string
 mut:
+	gbuffer           GapBuffer
 	lines_cpy                 []string
 	history                   History
 	snapshotted_at_least_once bool
@@ -18,11 +18,16 @@ mut:
 
 pub fn (mut buffer Buffer) load_from_path() ! {
 	buffer.lines = os.read_lines(buffer.file_path) or { return error("unable to open file ${buffer.file_path} ${err}") }
+	buffer.gbuffer = new_gap_buffer(0)
 	if buffer.lines.len == 0 { buffer.lines = [""] }
 	for l in buffer.lines {
-		for c in l.runes() { buffer.buffer.insert(c) }
-		buffer.buffer.insert(`\n`)
+		for c in l.runes() { buffer.gbuffer.insert(c) }
+		buffer.gbuffer.insert(`\n`)
 	}
+}
+
+pub fn (mut buffer Buffer) lines(from int, to int) []string {
+	return buffer.gbuffer.get_lines_str(from, to)
 }
 
 pub fn (mut buffer Buffer) undo() {
