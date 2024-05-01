@@ -25,6 +25,16 @@ fn test_gap_buffer_locating_newlines() {
 	assert newline_positions == [11]
 }
 
+fn test_gap_buffer_reading_line() {
+	mut buff := new_gap_buffer(0)
+	for c in "This is a single line doc.".runes() { buff.insert(c) }
+
+	newline_positions := buff.locate_newlines()
+	assert newline_positions == []
+	assert buff.get_line_str(0)! == "This is a single line doc."
+	assert buff.get_line_str(1) or { err.msg() } == "invalid line index 1 > 0"
+}
+
 fn test_gap_buffer_reading_lines() {
 	mut buff := new_gap_buffer(0)
 	for c in "Hello Test!\nThis is a second line.\nThis is a third line!".runes() {

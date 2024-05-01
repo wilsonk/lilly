@@ -75,6 +75,11 @@ pub fn (mut gap_buffer GapBuffer) get_line_str(line_num int) !string {
 	mut document := gap_buffer.buffer[..gap_buffer.pre_gap_len]
 	document << gap_buffer.buffer[gap_buffer.post_gap_start()..]
 
+	if newline_locations.len == 0 {
+		if line_num == 0 { return document.string() }
+		return error("invalid line index ${line_num > 0}")
+	}
+
 	// if want to retrieve line 0/1
 	if line_num == 0 {
 		return document[..newline_locations[0]].string()
