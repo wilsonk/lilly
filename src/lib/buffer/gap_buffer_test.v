@@ -86,3 +86,15 @@ fn test_gap_buffer_inserting_lots_of_text() {
 	}
 	assert buff.get_string() == "0123456789111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999"
 }
+
+fn test_gap_buffer_inserting_chars() {
+	mut buff := new_gap_buffer(0)
+	for c in "This is a test sentence!".runes() {
+		buff.insert(c)
+	}
+
+	buff.move_cursor_left()
+
+	buff.insert("H".runes()[0])
+	assert buff.get_string() == "This is a test sentence.H"
+}

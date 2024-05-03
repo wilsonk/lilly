@@ -21,6 +21,7 @@ pub fn (mut gap_buffer GapBuffer) set_string(s string) {
 	gap_buffer.buffer = s.runes()
 	gap_buffer.pre_gap_len = 0
 	gap_buffer.post_gap_len = gap_buffer.buffer.len
+	gap_buffer.move_cursor_left()
 }
 
 pub fn (mut gap_buffer GapBuffer) get_string() string {
@@ -29,6 +30,17 @@ pub fn (mut gap_buffer GapBuffer) get_string() string {
 	text << gap_buffer.buffer[gap_buffer.post_gap_start()..]
 	return text.string()
 }
+
+/*
+// moveGap moves the gap to the specified position.
+func (gb *GapBuffer) moveGap(pos int) {
+	gapStart := gb.gapPos
+	gapEnd := gb.gapPos + gb.gapLen
+	copy(gb.buf[pos+gb.gapLen:], gb.buf[gapEnd:])
+	copy(gb.buf[pos:], gb.buf[gapStart:gapEnd])
+	gb.gapPos = pos
+}
+*/
 
 pub fn (mut gap_buffer GapBuffer) move_cursor_left() bool {
 	if gap_buffer.pre_gap_len == 0 { return false }
