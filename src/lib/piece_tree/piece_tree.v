@@ -1,12 +1,21 @@
 module piece_tree
 
+struct UndoRedoEntry {
+}
+
+type LineStart = u8
+
+struct NodePosition {
+	// piece index
+	node &NodeData
+}
+
 type Column       = u8
 type BufferIndex  = u8
 enum Line        as u8 {
 	index_beginning
 	beginning
 }
-type LineStart = u8
 type Length    = u8
 type LFCount   = u8
 
