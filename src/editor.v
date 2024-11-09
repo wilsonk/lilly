@@ -58,7 +58,17 @@ pub fn open_editor(mut _log log.Log, mut _clipboard clipboardv2.Clipboard, commi
 		return error("unable to open workspace '${workspace_root_dir}' -> ${err}")
 	}
 
-	editor.views << new_splash(commit_hash, editor.workspace.config.leader_key)
+	$if !gui ? {
+		editor.views << new_splash(commit_hash, editor.workspace.config.leader_key)
+	} $else {
+		mut gui_buffer := buffer.Buffer{
+			file_path: ''
+			lines: ['  Welcome to Lilly Editor!', '  You can use ESCAPE to exit the editor.', '  Or you can use <spacebar>-ff to find a file']
+		}
+		editor.buffers << gui_buffer
+		editor.views << open_view(editor.workspace.config, editor.workspace.branch(), editor.workspace.syntaxes(), editor.clipboard, mut &editor.buffers[editor.buffers.len - 1])
+	}
+	//editor.views << new_splash(commit_hash, editor.workspace.config.leader_key)
 	editor.view = &editor.views[0]
 	if file_path.len != 0 {
 		editor.open_file(file_path)!

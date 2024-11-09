@@ -1,9 +1,13 @@
 module draw
 
 import term.ui as tui
+import gg
 
+@[heap]
 pub struct Event {
 	tui.Event
+pub:
+	gg_event &gg.Event = unsafe { nil }
 }
 
 pub struct Config {

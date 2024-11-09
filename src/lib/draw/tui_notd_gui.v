@@ -16,7 +16,7 @@ pub fn new_context(cfg Config) (&Contextable, Runner) {
 		ref: tui.init(
 			user_data: cfg.user_data
 			event_fn:  fn [cfg] (e &tui.Event, app voidptr) {
-				cfg.event_fn(Event{e}, app)
+				cfg.event_fn(Event{ Event: e, gg_event: unsafe { nil } }, app)
 			}
 			frame_fn:             cfg.frame_fn
 			capture_events:       cfg.capture_events
